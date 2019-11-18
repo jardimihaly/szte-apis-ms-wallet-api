@@ -1,0 +1,30 @@
+version: "3.7"
+services:
+  db: 
+    image: mysql:5.7
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=wallet_api
+      - MYSQL_USER=my_user
+      - MYSQL_PASSWORD=secretpassword
+      - MYSQL_ROOT_PASSWORD=verysecretpassword
+    networks:
+      - net_db
+  
+  api:
+    # TODO: replace later with docker image
+    build: dockerfile
+    context: .
+    ports:
+      - 5000:5000
+    networks: 
+      - net_db
+      - net_api
+    depends_on:
+      - db
+    # TODO: healthcheck
+
+networks:
+  - net_db
+  - net_api

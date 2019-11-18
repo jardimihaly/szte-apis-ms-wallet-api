@@ -1,0 +1,116 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: Hello World App
+host: localhost:5000
+basePath: /
+# 
+schemes:
+  - http
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+securityDefinitions:
+  keySecurity:
+    type: apiKey
+    in: header
+    name: Authorization
+security:
+  - keySecurity: []
+paths:
+  /:
+    x-swagger-router-controller: statusController
+    get:
+      description: Verify whether the API is active and is accepting requests
+      operationId: getStatus
+      security: []
+      responses:
+        "200":
+          description: The API is currently active
+        "503":
+          description: The API is temporarily unavailable
+  
+  /signup:
+    x-swagger-router-controller: authController
+    post:
+      description: Register a user to the API
+      operationId: signup
+      security: []
+      parameters:
+        - in: 'body'
+          name: 'credentials'
+          required: true
+          schema:
+            $ref: "#/definitions/Credentials"
+      responses:
+        "200":
+          description: Successful registration
+          
+        "400":
+          description: An error occurred during registration
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            email_exists:
+              message: This e-mail address is already registered to another account
+            
+  /login:
+    x-swagger-router-controller: authController
+    post:
+      description: Login to the API
+      operationId: login
+      security: []
+      parameters:
+        - in: 'body'
+          name: 'credentials'
+          required: true
+          schema:
+            $ref: "#/definitions/Credentials"
+      responses:
+        "200":
+          description: Successful login
+          schema:
+            description: Access Token (JWT)
+            type: string
+        "400":
+          description: Login failed
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            invalid_credentials:
+              message: Invalid Credentials
+  
+  /swagger:
+    x-swagger-pipe: swagger_raw
+
+
+definitions:
+  ErrorResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string
+        
+  Credentials:
+    required: 
+      - emailAddress
+      - password
+      - pin
+      - realName
+      - addressInfo
+    properties:
+      emailAddress:
+        type: string
+      password:
+        type: string
+      pin:
+        type: number
+      realName:
+        type: string
+      addressInfo:
+        type: string
+  
+  
