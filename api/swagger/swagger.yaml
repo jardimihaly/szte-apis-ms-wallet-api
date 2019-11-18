@@ -1,17 +1,19 @@
 swagger: "2.0"
 info:
   version: "0.0.1"
-  title: Hello World App
+  title: mWallet API
 host: localhost:5000
 basePath: /
-# 
+
 schemes:
   - http
   - https
+  
 consumes:
   - application/json
 produces:
   - application/json
+  
 securityDefinitions:
   keySecurity:
     type: apiKey
@@ -19,6 +21,7 @@ securityDefinitions:
     name: Authorization
 security:
   - keySecurity: []
+  
 paths:
   /:
     x-swagger-router-controller: statusController
@@ -82,9 +85,10 @@ paths:
             invalid_credentials:
               message: Invalid Credentials
   
+  
+  
   /swagger:
     x-swagger-pipe: swagger_raw
-
 
 definitions:
   ErrorResponse:
