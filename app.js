@@ -16,6 +16,6 @@ SwaggerExpress.create(config, function(err, swaggerExpress) {
 
   var port = process.env.PORT || 10010;
   app.listen(port, () => {
-    console.log(`App started on \x1b[33mhttp://127.0.0.1:${port}\x1b[0m .`);
+    console.log(`App started on \x1b[32mhttp://127.0.0.1:${port}\x1b[0m`);
   });
 });

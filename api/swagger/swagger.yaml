@@ -196,6 +196,19 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
     
+  /payments:
+    x-swagger-router-controller: payment
+    get:
+      operationId: listPayments
+      description: Get a list of payments
+      responses:
+        "200":
+          description: List of payments
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Payment'
+    
 definitions:
   ErrorResponse:
     required:
