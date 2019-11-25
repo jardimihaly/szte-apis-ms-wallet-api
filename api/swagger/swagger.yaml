@@ -24,7 +24,7 @@ security:
   
 paths:
   /:
-    x-swagger-router-controller: statusController
+    x-swagger-router-controller: status
     get:
       description: Verify whether the API is active and is accepting requests
       operationId: getStatus
@@ -36,7 +36,7 @@ paths:
           description: The API is temporarily unavailable
   
   /signup:
-    x-swagger-router-controller: authController
+    x-swagger-router-controller: auth
     post:
       description: Register a user to the API
       operationId: signup
@@ -60,7 +60,7 @@ paths:
               message: This e-mail address is already registered to another account
             
   /login:
-    x-swagger-router-controller: authController
+    x-swagger-router-controller: auth
     post:
       description: Login to the API
       operationId: login
@@ -89,7 +89,113 @@ paths:
   
   /swagger:
     x-swagger-pipe: swagger_raw
-
+    
+  /creditcards:
+    x-swagger-router-controller: creditcard
+    get:
+      description: Get a list of added creditcards
+      operationId: list
+      responses:
+        "200":
+          description: Credit cards added by the user
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/CreditCard"
+    post:
+      description: Add a new credit card
+      operationId: store
+      parameters:
+        - in: 'body'
+          name: cardinfo
+          required: true
+          schema:
+            $ref: "#/definitions/CreditCard"
+      responses:
+        "200":
+          description: Credit card saved
+        "400":
+          description: Error occurred while saving credit card
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    put:
+      description: Update a credit card
+      operationId: update
+      parameters:
+        - in: 'body'
+          name: cardinfo
+          required: true
+          schema:
+            $ref: "#/definitions/CreditCard"
+        - in: 'query'
+          name: cardid
+          required: true
+          type: number
+      responses:
+        "200":
+          description: Card updated successfully
+        "400":
+          description: An error occurred
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        "403":
+          description: User tried to update a card that does not belong to them
+        "404":
+          description: Card not found
+    delete:
+      description: Delete a credit card
+      operationId: remove
+      parameters:
+        - in: 'query'
+          name: cardid
+          required: true
+          type: number
+      responses:
+        "200":
+          description: Card deleted successfully
+        "403":
+          description: User tried to delete a card that does not belong to them
+        "404":
+          description: Card not found
+          
+  /pay:
+    x-swagger-router-controller: payment
+    post:
+      operationId: generic
+      description: Start a payment
+      parameters:
+        - in: 'body'
+          name: paymentDetails
+          required: true
+          schema:
+            $ref: '#/definitions/Payment'
+      responses:
+        "200":
+          description: Payment accepted
+        "400":
+          description: Payment rejected
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+            
+  /vignette:
+    x-swagger-router-controller: payment
+    post:
+      operationId: vignette
+      description: Buy a vignette online
+      parameters:
+        - in: 'body'
+          name: order
+          required: true
+          schema:
+            $ref: '#/definitions/Vignette'
+      responses:
+        "200":
+          description: Payment completed successfully
+        "400":
+          description: Payment rejected
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    
 definitions:
   ErrorResponse:
     required:
@@ -102,19 +208,92 @@ definitions:
     required: 
       - emailAddress
       - password
-      - pin
-      - realName
+      - name
       - addressInfo
     properties:
       emailAddress:
         type: string
+        description: E-mail address of the user
       password:
         type: string
-      pin:
-        type: number
-      realName:
+        description: The password used to authenticate
+      name:
         type: string
+        description: The name of the user
       addressInfo:
         type: string
+        description: User address information
   
+  CreditCard:
+    required:
+      - cardNumber
+      - nameOfBank
+      - nameOnCard
+      - expiry
+      - payPass
+      - dailyLimit
+      - ccv
+      - default
+    properties:
+      cardNumber:
+        type: string
+        description: Credit card number
+      nameOfBank:
+        type: string
+        description: The name of the bank issuing the credit card
+      nameOnCard:
+        type: string
+        default: The name displayed on the card
+      expiry:
+        type: string
+        description: MM/YY format of expiry
+      payPass:
+        type: boolean
+        description: Determine whether you can pay with this card via PayPass or not
+      dailyLimit:
+        type: number
+        description: The daily limit of the card in Euros
+      monthlyLimit:
+        type: number
+        description: The monthly limit of the card in Euros (0 means to monthly limit)
+      ccv:
+        type: string
+        description: CCV authentication number
+      default:
+        type: boolean
+        description: Determines whether this is the default card or not
   
+  Payment:
+    required:
+      - amount
+    properties:
+      amount:
+        type: number
+        description: Payment amount in Euros
+      cardId:
+        type: number
+        description: 
+          The credit card to process the payment with.
+          Only requried if card is different when the default
+      date:
+        type: string
+        description: Date and time of the payment
+      remarks:
+        type: string
+        description: Additional information about the payment
+        
+  Vignette: 
+    required:
+      - plateNumber
+      - vehicleCategory
+      - vignetteType
+    properties:
+      plateNumber:
+        type: string
+        description: License plate number of the vehicle
+      vehicleCategory:
+        type: string
+        enum: [ D1, D2, B2, D1m, U ]
+      vignetteType:
+        type: string
+        enum: [ weekly, monthly ]

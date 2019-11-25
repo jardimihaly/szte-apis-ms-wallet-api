@@ -10,21 +10,27 @@ services:
       - MYSQL_PASSWORD=secretpassword
       - MYSQL_ROOT_PASSWORD=verysecretpassword
     networks:
-      - net_db
+      - database
   
   api:
     # TODO: replace later with docker image
-    build: dockerfile
-    context: .
+    build: 
+      dockerfile: dockerfile
+      context: .
     ports:
       - 5000:5000
     networks: 
-      - net_db
-      - net_api
+      - database
+      - api
     depends_on:
       - db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://api:5000"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
     # TODO: healthcheck
 
 networks:
-  - net_db
-  - net_api
+  - database
+  - api
