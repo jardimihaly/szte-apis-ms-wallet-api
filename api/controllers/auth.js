@@ -60,7 +60,6 @@ async function loginAsync(req, res) {
 
     if(user)
     {
-        console.log('Signing token');
         jwt.sign({ 
             id: user.id, 
             emailAddress: 
@@ -70,8 +69,6 @@ async function loginAsync(req, res) {
             // the token will expire after 15 minutes
             exp: Math.floor(Date.now() / 1000) + (15 * 60)
         }, process.env.SECRET, (err, token) => {
-            
-            console.log({token});
             if(err)
             {
                 res.status(500).send({
