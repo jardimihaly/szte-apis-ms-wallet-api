@@ -70,14 +70,24 @@ paths:
           name: 'credentials'
           required: true
           schema:
-            $ref: "#/definitions/Credentials"
+            type: object
+            required:
+              - emailAddress
+              - password
+            properties:
+              emailAddress:
+                type: string
+                description: Email address
+              password:
+                type: string
+                description: Password
       responses:
         "200":
           description: Successful login
           schema:
             description: Access Token (JWT)
             type: string
-        "400":
+        "401":
           description: Login failed
           schema:
             $ref: "#/definitions/ErrorResponse"
@@ -238,10 +248,10 @@ definitions:
         
   Credentials:
     required: 
-      - emailAddress
-      - password
-      - name
-      - addressInfo
+       - emailAddress
+       - password
+       - name
+       - addressInfo
     properties:
       emailAddress:
         type: string
@@ -299,6 +309,7 @@ definitions:
     required:
       - amount
       - vendorId
+      - referenceNumber
     properties:
       amount:
         type: number
@@ -317,6 +328,9 @@ definitions:
       vendorId:
         type: number
         description: Vendor ID. See /vendors for list.
+      referenceNumber:
+        type: string
+        description: Reference number for the payment.
         
   Vignette: 
     required:

@@ -9,10 +9,11 @@
   "main": "app.js",
   "dependencies": {
     "express": "^4.12.3",
+    "jsonwebtoken": "^8.5.1",
     "mysql2": "^2.0.1",
     "sequelize": "^5.21.2",
     "sqlite3": "^4.1.0",
-    "swagger-express-mw": "^0.7.0"
+    "swagger-express-mw": "0.1.0"
   },
   "devDependencies": {
     "sequelize-cli": "^5.5.1",
@@ -20,7 +21,7 @@
     "supertest": "^1.0.0"
   },
   "scripts": {
-    "start": "PORT=5000 node app.js",
+    "start": "PORT=5000 SECRET=secret123 node app.js",
     "test": "swagger project test"
   }
 }
