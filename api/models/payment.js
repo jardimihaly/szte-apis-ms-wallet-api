@@ -4,7 +4,9 @@ module.exports = (sequelize, DataTypes) => {
     description: DataTypes.STRING,
     amount: DataTypes.NUMBER,
     accepted: DataTypes.BOOLEAN,
-    referenceNumber: DataTypes.STRING
+    referenceNumber: DataTypes.STRING,
+    vendorId: DataTypes.INTEGER,
+    remarks: DataTypes.STRING
   }, {});
   payment.associate = function(models) {
     models.payment.belongsTo(models.card);

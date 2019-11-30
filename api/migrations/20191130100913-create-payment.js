@@ -27,6 +27,12 @@ module.exports = {
       },
       referenceNumber: {
         type: Sequelize.STRING
+      },
+      vendorId: {
+        type: Sequelize.INTEGER
+      },
+      remarks: {
+        type: Sequelize.STRING
       }
     });
   },

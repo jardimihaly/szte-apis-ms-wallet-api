@@ -95,8 +95,6 @@ paths:
             invalid_credentials:
               message: Invalid Credentials
   
-  
-  
   /swagger:
     x-swagger-pipe: swagger_raw
     
@@ -300,7 +298,7 @@ definitions:
         description: The monthly limit of the card in Euros (0 means no monthly limit)
       cvv:
         type: string
-        description: CCV authentication number
+        description: CVV authentication number
       default:
         type: boolean
         description: Determines whether this is the default card or not
@@ -347,6 +345,11 @@ definitions:
       vignetteType:
         type: string
         enum: [ weekly, monthly ]
+      cardId:
+        type: number
+        description: 
+          The credit card to process the payment with.
+          Only requried if card is different when the default
         
   Vendor:
     required:
