@@ -1,7 +1,7 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   const payment = sequelize.define('payment', {
-    amount: DataTypes.NUMBER,
+    amount: DataTypes.DOUBLE,
     accepted: DataTypes.BOOLEAN,
     referenceNumber: DataTypes.STRING,
     vendorId: DataTypes.INTEGER,

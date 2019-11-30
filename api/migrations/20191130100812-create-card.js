@@ -24,10 +24,10 @@ module.exports = {
         type: Sequelize.BOOLEAN
       },
       dailyLimit: {
-        type: Sequelize.NUMBER
+        type: Sequelize.DOUBLE
       },
       monthlyLimit: {
-        type: Sequelize.NUMBER,
+        type: Sequelize.DOUBLE,
       },
       cvv: {
         type: Sequelize.STRING

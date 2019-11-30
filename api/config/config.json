@@ -15,7 +15,7 @@
     "username": "my_user",
     "password": "secretpassword",
     "database": "wallet_api",
-    "host": "127.0.0.1",
+    "host": "db",
     "dialect": "mysql",
     "operatorsAliases": false
   }

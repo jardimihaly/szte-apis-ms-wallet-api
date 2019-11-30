@@ -34,7 +34,7 @@ node_modules
 config/runtime.yaml
 
 # Database file
-db.sqlite
+*db.sqlite
 
 # Mysql Database Volume
 mysql

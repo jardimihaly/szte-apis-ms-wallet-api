@@ -6,8 +6,8 @@ module.exports = (sequelize, DataTypes) => {
     nameOnCard: DataTypes.STRING,
     expiry: DataTypes.DATE,
     payPass: DataTypes.BOOLEAN,
-    dailyLimit: DataTypes.NUMBER,
-    monthlyLimit: DataTypes.NUMBER,
+    dailyLimit: DataTypes.DOUBLE,
+    monthlyLimit: DataTypes.DOUBLE,
     cvv: DataTypes.STRING,
     default: DataTypes.BOOLEAN
   }, {});

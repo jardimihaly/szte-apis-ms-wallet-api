@@ -1,8 +1,8 @@
-function status(req, res)
+function getStatus(req, res)
 {
-    res.status(200).send();
+    res.status(200).json();
 }
 
 module.exports = {
-    status
+    getStatus
 }

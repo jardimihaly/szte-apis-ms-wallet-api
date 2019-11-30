@@ -1,5 +1,62 @@
 version: "3.7"
 services:
+  kong-db:
+    image: postgres:9.5
+    container_name: kong-database
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: kong
+      POSTGRES_USER: kong
+      POSTGRES_PASSWORD: 123456789
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "kong"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - kong
+    
+  kong-migration:
+    image: kong:latest
+    command: "kong migrations bootstrap"
+    restart: on-failure
+    environment:
+      KONG_PG_HOST: kong-db
+      KONG_PG_PASSWORD: 123456789
+    depends_on: 
+      - kong-db
+    networks:
+      - kong
+
+  api-kong:
+    image: kong:latest
+    restart: always
+    depends_on: 
+      - kong-migration
+      - kong-db
+    ports:
+      - 8000:8000
+      - 8443:8443
+      - 8001:8001
+      - 7946:7946
+      - 7946:7946/udp
+    environment:
+      - KONG_ADMIN_LISTEN=0.0.0.0:8001
+      - KONG_DATABASE=postgres
+      - KONG_PG_HOST=kong-db
+      - KONG_PG_PASSWORD=123456789
+      - KONG_PG_SSL=true
+      - KONG_PG_SSL_VERIFY=true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001"]
+      interval: 5s
+      timeout: 2s
+      retries: 15
+    networks:
+      - kong
+      - api
+
   db: 
     image: mysql:5.7
     volumes:
@@ -12,18 +69,42 @@ services:
     networks:
       - database
   
-  api:
-    # TODO: replace later with docker image
+  api-1:
     build: 
       dockerfile: dockerfile
       context: .
-    ports:
-      - 5000:5000
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+    restart: unless-stopped
     networks: 
       - database
       - api
     depends_on:
       - db
+    ports:
+      - 5000:5000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://api:5000"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  api-2:
+    build: 
+      dockerfile: dockerfile
+      context: .
+    environment:
+      - NODE_ENV=production
+      - PORT=5001
+    restart: unless-stopped
+    networks: 
+      - database
+      - api
+    depends_on:
+      - db
+    ports:
+      - 5001:5001
     healthcheck:
       test: ["CMD", "curl", "-f", "http://api:5000"]
       interval: 5s
@@ -31,5 +112,6 @@ services:
       retries: 3
 
 networks:
-  - database
-  - api
+  database:
+  api:
+  kong:
