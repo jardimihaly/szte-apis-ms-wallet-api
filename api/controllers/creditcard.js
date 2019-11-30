@@ -132,8 +132,28 @@ function removeCard(req, res) {
     removeCardAsync(req, res);
 }
 
-function removeCardAsync(req, res) {
-    
+async function removeCardAsync(req, res) {
+    let cardId = req.swagger.params.cardid.value;
+
+    let card = await db.card.findOne({
+        where: {
+            userId: req.user.id,
+            id: cardId
+        }
+    });
+
+    if(!card)
+    {
+        res.status(404).send({
+            message: 'Card not found'
+        })
+        
+        return;
+    }
+
+    await card.destroy();
+
+    res.status(200).json();
 }
 
 async function validateCreditCard({ cardNumber, expiry }, userId = undefined, checkForExistingCardNumber = true)
