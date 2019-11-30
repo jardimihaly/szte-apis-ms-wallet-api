@@ -32,3 +32,9 @@ node_modules
 
 # Runtime configuration for swagger app
 config/runtime.yaml
+
+# Database file
+db.sqlite
+
+# Mysql Database Volume
+mysql

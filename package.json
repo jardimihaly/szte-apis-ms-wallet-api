@@ -9,9 +9,13 @@
   "main": "app.js",
   "dependencies": {
     "express": "^4.12.3",
-    "swagger-express-mw": "^0.1.0"
+    "mysql2": "^2.0.1",
+    "sequelize": "^5.21.2",
+    "sqlite3": "^4.1.0",
+    "swagger-express-mw": "^0.7.0"
   },
   "devDependencies": {
+    "sequelize-cli": "^5.5.1",
     "should": "^7.1.0",
     "supertest": "^1.0.0"
   },
