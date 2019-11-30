@@ -57,7 +57,8 @@ async function genericPaymentAsync(req, res) {
         amount: paymentDetails.amount,
         referenceNumber: paymentDetails.referenceNumber,
         remarks: `Paid ${paymentDetails.amount}€ to ${vendor.name} on ${date}.`,
-        accepted: result
+        accepted: result,
+        cardId: card.id
     });
 
     if(result)
@@ -127,7 +128,7 @@ async function vignettePurchaseAsync(req, res) {
     let result = await securePayment.purchaseVignette(card, {
         plateNumber: order.plateNumber,
         vehicleCategory: order.vehicleCategory,
-        amount: price
+        amount: price,
     });
 
     let vendors = await vendorService.getVendors();
@@ -148,7 +149,8 @@ async function vignettePurchaseAsync(req, res) {
         amount: price,
         referenceNumber: result.refNo,
         remarks: `Vignette purchase for ${price}€ to ${vendor.name} on ${date}.`,
-        accepted: result.success
+        accepted: result.success,
+        cardId: card.id
     });
 
     if(result.success)
@@ -201,8 +203,57 @@ function listPayments(req, res) {
     listPaymentsAsync(req, res);
 }
 
-function listPaymentsAsync(req, res) {
+async function listPaymentsAsync(req, res) {
+    let cardId = req.swagger.params.cardid;
 
+    let payments;
+
+    if(cardId)
+    {
+        let card = await db.card.findOne({
+            where: {
+                id: cardId,
+                userId: req.user.id
+            }
+        });
+
+        if(!card)
+        {
+            res.status(400).send({
+                message: 'Card not found'
+            })
+        }
+
+        payments = await db.payment.findAll({
+            where: {
+                cardId
+            }
+        });
+    }
+    else
+    {
+        let cardsOfUser = await db.card.findAll({
+            where: {
+                userId: req.user.id
+            }
+        });
+
+        cardsOfUser = cardsOfUser.map(card => card.id);
+
+        payments = await db.payment.findAll({
+            where: {
+                cardId: {
+                    [Op.in]: cardsOfUser
+                }
+            }
+        });
+    }
+
+    payments = payments.map(payment => payment.dataValues)
+
+    console.log(payments);
+
+    return res.status(200).send(payments);
 }
 
 async function getDefaultCard(userId) {
