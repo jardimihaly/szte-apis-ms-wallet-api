@@ -29,7 +29,7 @@ module.exports = {
       monthlyLimit: {
         type: Sequelize.NUMBER,
       },
-      ccv: {
+      cvv: {
         type: Sequelize.STRING
       },
       default: {

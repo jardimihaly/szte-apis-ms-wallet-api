@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
     payPass: DataTypes.BOOLEAN,
     dailyLimit: DataTypes.NUMBER,
     monthlyLimit: DataTypes.NUMBER,
-    ccv: DataTypes.STRING,
+    cvv: DataTypes.STRING,
     default: DataTypes.BOOLEAN
   }, {});
   card.associate = function(models) {

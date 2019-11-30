@@ -149,7 +149,7 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
         "403":
-          description: User tried to update a card that does not belong to them
+          description: User tried to update a card which does not belong to them
         "404":
           description: Card not found
     delete:
@@ -274,7 +274,7 @@ definitions:
       - expiry
       - payPass
       - dailyLimit
-      - ccv
+      - cvv
       - default
     properties:
       cardNumber:
@@ -298,7 +298,7 @@ definitions:
       monthlyLimit:
         type: number
         description: The monthly limit of the card in Euros (0 means no monthly limit)
-      ccv:
+      cvv:
         type: string
         description: CCV authentication number
       default:

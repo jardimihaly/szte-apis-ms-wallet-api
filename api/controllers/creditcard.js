@@ -6,18 +6,34 @@ function listCards(req, res) {
 }
 
 async function listCardsAsync(req, res) {
-    res.json(await db.card.findAll({
+    let cards = (await db.card.findAll({
         where: {
             userId: req.user.id
-        }
-    }));
+        },
+        attributes: [
+            'cardNumber', 
+            'nameOfBank', 
+            'nameOnCard',
+            'expiry',
+            'payPass',
+            'dailyLimit',
+            'cvv',
+            'default',
+            'id'
+        ],
+        order: [
+            ['default', 'desc']
+        ]
+    })).map(card => card.dataValues);
+
+    res.json(cards);
 }
 
 function storeCard(req, res) {
     storeCardAsync(req, res);
 }
 
-function storeCardAsync(req, res) {
+async function storeCardAsync(req, res) {
     let cardInfo = req.swagger.params.cardinfo.value;
 
     try {
@@ -25,21 +41,13 @@ function storeCardAsync(req, res) {
     } catch (error) {
         res.status(400).send({
             message: error.message
-        });await
+        });
+        return;
+    }
 
     if(cardInfo.default === 'true' || cardInfo.default === true)
     {
-        // set the default value on all cards to false
-        let cards = await db.card.findAll({
-            where: {
-                userId: req.user.id
-            }
-        });
-
-       await Promise.all(cards.map(async card => {
-            card.default = false;
-            return card.save();
-        }));
+        await setAllCardsAsNonDefault(req.user.id);
     }
 
     await db.card.create({
@@ -51,16 +59,73 @@ function storeCardAsync(req, res) {
         dailyLimit: cardInfo.dailyLimit,
         cvv: cardInfo.cvv,
         default: cardInfo.default,
-        monthlyLimit: cardInfo.monthlyLimit || 0
+        monthlyLimit: cardInfo.monthlyLimit || 0,
+        userId: req.user.id
     });
+
+    res.status(200).json();
 }
 
 function updateCard(req, res) {
     updateCardAsync(req, res);
 }
 
-function updateCardAsync(req, res) {
-    
+async function updateCardAsync(req, res) {
+    let cardId = req.swagger.params.cardid.value;
+
+    let cardInfo = req.swagger.params.cardinfo.value;
+
+    let card = await db.card.findOne({
+        where: {
+            id: cardId
+        }
+    });
+
+    if(!card)
+    {
+        res.status(404).send({
+            message: 'Card not found'
+        });
+
+        return;
+    }
+
+    if(card.userId !== req.user.id)
+    {
+        res.status(403).send({
+            message: 'User tried to update a card which does not belong to them'
+        });
+
+        return;
+    }
+
+    try {
+        console.log(cardInfo.cardNumber, card.cardNumber);
+        validateCreditCard(
+            cardInfo, 
+            req.user.id, 
+            card.cardNumber !== cardInfo.cardNumber
+        );
+    } catch (error) {
+        res.status(400).send({
+            message: error.message
+        })
+
+        return;
+    }
+
+    if(cardInfo.default === 'true' || cardInfo.default === true)
+    {
+        await setAllCardsAsNonDefault(req.user.id);
+    }
+
+    Object.keys(cardInfo).forEach(key => {
+        card[key] = cardInfo[key];
+    })
+
+    await card.save();
+
+    res.status(200).json();
 }
 
 function removeCard(req, res) {
@@ -71,19 +136,19 @@ function removeCardAsync(req, res) {
     
 }
 
-async function validateCreditCard({ cardNumber, expirationDate }, userId = undefined)
+async function validateCreditCard({ cardNumber, expiry }, userId = undefined, checkForExistingCardNumber = true)
 {
     let validNumber = cardValidator.number(cardNumber);
     if(!validNumber.isPotentiallyValid) {
         throw Error('Invalid card number!');
     }
 
-    let validExpiration = cardValidator.expirationDate(expirationDate);
+    let validExpiration = cardValidator.expirationDate(expiry);
     if(!validExpiration.isPotentiallyValid) {
-        throw Error('Invalid expiration date.');
+        throw Error('Invalid expiration date!');
     }
 
-    if(userId) {
+    if(userId && checkForExistingCardNumber) {
         let cards = await db.card.findAll({
             where: {
                 cardNumber,
@@ -96,6 +161,21 @@ async function validateCreditCard({ cardNumber, expirationDate }, userId = undef
             throw Error('Credit card with the same card number already exists for this user.');
         }
     }
+    
+}
+
+async function setAllCardsAsNonDefault(userId)
+{
+    let cards = await db.card.findAll({
+        where: {
+            userId
+        }
+    });
+
+    await Promise.all(cards.map(async card => {
+        card.default = false;
+        await card.save();
+    }));
 }
 
 module.exports = {
