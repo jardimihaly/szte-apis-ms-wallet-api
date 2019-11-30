@@ -140,7 +140,7 @@ async function vignettePurchaseAsync(req, res) {
     }
     else
     {
-        console.log('"Magyar Közút Zrt." (hard coded vendor) not found. Please verify that vendors.json exists.');
+        console.error('"Magyar Közút Zrt." (hard coded vendor) not found. Please verify that vendors.json exists.');
         process.exit(1);
     }
 
@@ -251,8 +251,6 @@ async function listPaymentsAsync(req, res) {
 
     payments = payments.map(payment => payment.dataValues)
 
-    console.log(payments);
-
     return res.status(200).send(payments);
 }
 
@@ -315,8 +313,6 @@ async function isInDailyLimit(cardId, amount)
             0
         );
 
-    console.log({paymentsSum, amount, dailyLimit});
-
     return (paymentsSum + amount) < dailyLimit;
 }
 
@@ -369,8 +365,6 @@ async function isInMonthlyLimit(cardId, amount)
             (sum, amount) => sum + amount,
             0
         );
-
-    console.log({paymentsSum, amount, monthlyLimit});
 
     return (paymentsSum + amount) < monthlyLimit;
 }
