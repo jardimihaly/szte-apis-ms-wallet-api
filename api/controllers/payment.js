@@ -265,7 +265,7 @@ async function getDefaultCard(userId) {
 
 async function isInLimits(cardId, amount)
 {
-    return isInDailyLimit(cardId, amount) && isInMonthlyLimit(cardId, amount);
+    return (await isInDailyLimit(cardId, amount)) && (await isInMonthlyLimit(cardId, amount));
 }
 
 async function isInDailyLimit(cardId, amount)
@@ -291,18 +291,21 @@ async function isInDailyLimit(cardId, amount)
     let today2359 = new Date(
         currentDate.getFullYear(), 
         currentDate.getMonth(),
-        currentDate.getDay(),
+        currentDate.getDate(),
         23,
         59,
         59
     );
+
+    console.log({today00, today2359});
 
     let paymentsToday = await db.payment.findAll({
         where: {
             createdAt: {
                 [Op.between]: [today00, today2359],
             },
-            accepted: true
+            accepted: true,
+            cardId: card.id
         }
     });
 
@@ -312,6 +315,8 @@ async function isInDailyLimit(cardId, amount)
             (sum, amount) => sum + amount,
             0
         );
+
+    console.log({paymentsSum, amount, dailyLimit});
 
     return (paymentsSum + amount) < dailyLimit;
 }
@@ -350,12 +355,15 @@ async function isInMonthlyLimit(cardId, amount)
         59
     );
 
+    console.log({firstDayOfMonth, lastDayOfMonth});
+
     let paymentsThisMonth = await db.payment.findAll({
         where: {
             createdAt: { 
                 [Op.between]: [firstDayOfMonth, lastDayOfMonth] 
             },
-            accepted: true
+            accepted: true,
+            cardId: card.id
         }
     });
 
@@ -365,6 +373,8 @@ async function isInMonthlyLimit(cardId, amount)
             (sum, amount) => sum + amount,
             0
         );
+
+    console.log({paymentsSum, amount, monthlyLimit});
 
     return (paymentsSum + amount) < monthlyLimit;
 }
