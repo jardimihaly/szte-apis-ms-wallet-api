@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
     expiry: DataTypes.DATE,
     payPass: DataTypes.BOOLEAN,
     dailyLimit: DataTypes.NUMBER,
+    monthlyLimit: DataTypes.NUMBER,
     ccv: DataTypes.STRING,
     default: DataTypes.BOOLEAN
   }, {});

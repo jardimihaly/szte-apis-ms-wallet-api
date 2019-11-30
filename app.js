@@ -4,8 +4,11 @@ var SwaggerExpress = require('swagger-express-mw');
 var app = require('express')();
 module.exports = app; // for testing
 
+const { swaggerSecurityHandlers } = require('./api/helpers/swaggerSecurity');
+
 var config = {
   appRoot: __dirname, // required config
+  swaggerSecurityHandlers
 };
 
 SwaggerExpress.create(config, function(err, swaggerExpress) {

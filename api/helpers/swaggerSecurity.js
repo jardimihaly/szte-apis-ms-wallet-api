@@ -6,8 +6,18 @@ module.exports = {
             if(authOrSecDef) {
                 if(scopesOrApiKey)
                 {
+                    let token = ''
+                    if(scopesOrApiKey.match(/Bearer .*/i))
+                    {
+                        token = scopesOrApiKey.replace('Bearer ', '');
+                    }
+                    else
+                    {
+                        token = scopesOrApiKey;
+                    }
+
                     jwt.verify(
-                        scopesOrApiKey, 
+                        token, 
                         process.env.SECRET,
                         (err, decoded) => {
                             if(err)

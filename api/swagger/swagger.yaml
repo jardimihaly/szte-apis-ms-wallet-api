@@ -297,7 +297,7 @@ definitions:
         description: The daily limit of the card in Euros
       monthlyLimit:
         type: number
-        description: The monthly limit of the card in Euros (0 means to monthly limit)
+        description: The monthly limit of the card in Euros (0 means no monthly limit)
       ccv:
         type: string
         description: CCV authentication number

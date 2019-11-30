@@ -26,6 +26,9 @@ module.exports = {
       dailyLimit: {
         type: Sequelize.NUMBER
       },
+      monthlyLimit: {
+        type: Sequelize.NUMBER,
+      },
       ccv: {
         type: Sequelize.STRING
       },
