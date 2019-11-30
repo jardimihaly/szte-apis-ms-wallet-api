@@ -148,7 +148,7 @@ async function vignettePurchaseAsync(req, res) {
         vendorId: vendor.id,
         amount: price,
         referenceNumber: result.refNo,
-        remarks: `Vignette purchase for ${price}€ to ${vendor.name} on ${date}.`,
+        remarks: `${order.vignetteType} vignette purchase for ${price}€ to ${vendor.name} on ${date} for vehile ${order.plateNumber}.`,
         accepted: result.success,
         cardId: card.id
     });
