@@ -11,30 +11,16 @@ async function genericPaymentAsync(req, res) {
     let paymentDetails = req.swagger.params.paymentDetails.value;
 
     let card = null;
-
-    if(paymentDetails.cardId)
-    {
-        card = await db.card.findOne({
-            where: {
-                id: paymentDetails.cardId,
-                userId: req.user.id
-            }
-        });
-    }
-    else
-    {
-        card = await getDefaultCard(req.user.id);
-    }
-
-    if(!card)
-    {
+    try {
+        card = await getCard(req.user.id, paymentDetails.cardId);
+    } catch (error) {
         res.status(400).send({
-            message: 'No card found.'
-        });
+            message: error.message
+        })
         return;
     }
 
-    if(!await isInLimits(card.id, paymentDetails.amount))
+    if(!(await isInLimits(card.id, paymentDetails.amount)))
     {
         res.status(400).send({
             message: 'Card limit reached.'
@@ -90,8 +76,125 @@ function vignettePurchase(req, res) {
     vignettePurchaseAsync(req, res);
 }
 
-function vignettePurchaseAsync(req, res) {
+async function vignettePurchaseAsync(req, res) {
+    const pricing = {
+        D1: {
+            weekly: 10,
+            monthly: 20,
+        },
+        D2: {
+            weekly: 25,
+            monthly: 35
+        }, 
+        B2: {
+            weekly: 60,
+            monthly: 75,
+        },
+        D1m: {
+            weekly: 5,
+            monthly: 9
+        },
+        U: {
+            weekly: 10,
+            monthly: 15
+        }
+    }
 
+    let order = req.swagger.params.order.value;
+
+    let price = pricing[order.vehicleCategory][order.vignetteType];
+
+    let card = null;
+    try {
+        card = await getCard(req.user.id, order.cardId);
+    } catch (error) {
+        res.status(400).send({
+            message: error.message
+        })
+        return;
+    }
+
+    if(!(await isInLimits(card.id, price)))
+    {
+        res.status(400).send({
+            message: 'Card limit reached.'
+        });
+        return;
+    }
+
+    let date = new Date().toISOString().replace(/T/,' ').replace(/\..+/, '');
+
+    let result = await securePayment.purchaseVignette(card, {
+        plateNumber: order.plateNumber,
+        vehicleCategory: order.vehicleCategory,
+        amount: price
+    });
+
+    let vendors = await vendorService.getVendors();
+
+    let vendor = vendors.filter(vendor => vendor.name === 'Magyar Közút Nonprofit Zrt.');
+    if(vendor.length > 0)
+    {
+        vendor = vendor[0];
+    }
+    else
+    {
+        console.log('"Magyar Közút Zrt." (hard coded vendor) not found. Please verify that vendors.json exists.');
+        process.exit(1);
+    }
+
+    await db.payment.create({
+        vendorId: vendor.id,
+        amount: price,
+        referenceNumber: result.refNo,
+        remarks: `Vignette purchase for ${price}€ to ${vendor.name} on ${date}.`,
+        accepted: result.success
+    });
+
+    if(result.success)
+    {
+        res.status(200).json();
+    }
+    else
+    {
+        res.status(400).send({
+            message: 'Payment rejected.'
+        })
+    }
+}
+
+async function getCard(userId, cardId = null) {
+    if(cardId)
+    {
+        card = await db.card.findOne({
+            where: {
+                id: cardId,
+                userId: userId
+            }
+        });
+    }
+    else
+    {
+        card = await getDefaultCard(userId);
+
+        // this may be kind of retarded now that I think about it,
+        // but I just want to make this junk work
+        if(!card)
+        {
+            card = await db.card.findOne({
+                where: {
+                    userId: userId
+                }
+            });
+        }
+    }
+
+    if(!card)
+    {
+        throw Error('No card found.');
+    }
+
+    return card;
 }
 
 function listPayments(req, res) {
@@ -103,7 +206,12 @@ function listPaymentsAsync(req, res) {
 }
 
 async function getDefaultCard(userId) {
-
+    return await db.card.findOne({
+        where: {
+            default: true,
+            userId
+        }
+    })
 }
 
 async function isInLimits(cardId, amount)
@@ -155,6 +263,8 @@ async function isInDailyLimit(cardId, amount)
             (sum, amount) => sum + amount,
             0
         );
+
+    console.log({paymentsSum, amount, dailyLimit});
 
     return (paymentsSum + amount) < dailyLimit;
 }
@@ -208,6 +318,8 @@ async function isInMonthlyLimit(cardId, amount)
             (sum, amount) => sum + amount,
             0
         );
+
+    console.log({paymentsSum, amount, monthlyLimit});
 
     return (paymentsSum + amount) < monthlyLimit;
 }
