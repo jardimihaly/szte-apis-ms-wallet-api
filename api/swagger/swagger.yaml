@@ -94,7 +94,7 @@ paths:
     x-swagger-router-controller: creditcard
     get:
       description: Get a list of added creditcards
-      operationId: list
+      operationId: listCards
       responses:
         "200":
           description: Credit cards added by the user
@@ -104,7 +104,7 @@ paths:
               $ref: "#/definitions/CreditCard"
     post:
       description: Add a new credit card
-      operationId: store
+      operationId: storeCard
       parameters:
         - in: 'body'
           name: cardinfo
@@ -120,7 +120,7 @@ paths:
             $ref: "#/definitions/ErrorResponse"
     put:
       description: Update a credit card
-      operationId: update
+      operationId: updateCard
       parameters:
         - in: 'body'
           name: cardinfo
@@ -144,7 +144,7 @@ paths:
           description: Card not found
     delete:
       description: Delete a credit card
-      operationId: remove
+      operationId: removeCard
       parameters:
         - in: 'query'
           name: cardid
@@ -161,7 +161,7 @@ paths:
   /pay:
     x-swagger-router-controller: payment
     post:
-      operationId: generic
+      operationId: genericPayment
       description: Start a payment
       parameters:
         - in: 'body'
@@ -180,7 +180,7 @@ paths:
   /vignette:
     x-swagger-router-controller: payment
     post:
-      operationId: vignette
+      operationId: vignettePurchase
       description: Buy a vignette online
       parameters:
         - in: 'body'
@@ -201,6 +201,11 @@ paths:
     get:
       operationId: listPayments
       description: Get a list of payments
+      parameters:
+        - in: 'query'
+          name: cardId
+          required: false
+          type: number
       responses:
         "200":
           description: List of payments
@@ -208,6 +213,20 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Payment'
+  
+  /vendors:
+    x-swagger-router-controller: vendor
+    get:
+      security: []
+      operationId: listVendors
+      description: Get a list of vendors
+      responses:
+        "200":
+          description: List of vendors
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Vendor"
     
 definitions:
   ErrorResponse:
@@ -279,6 +298,7 @@ definitions:
   Payment:
     required:
       - amount
+      - vendorId
     properties:
       amount:
         type: number
@@ -294,6 +314,9 @@ definitions:
       remarks:
         type: string
         description: Additional information about the payment
+      vendorId:
+        type: number
+        description: Vendor ID. See /vendors for list.
         
   Vignette: 
     required:
@@ -310,3 +333,15 @@ definitions:
       vignetteType:
         type: string
         enum: [ weekly, monthly ]
+        
+  Vendor:
+    required:
+      - id
+      - name
+    properties:
+      id:
+        type: number
+        description: ID of vendor
+      name:
+        type: string
+        description: Name of vendor
