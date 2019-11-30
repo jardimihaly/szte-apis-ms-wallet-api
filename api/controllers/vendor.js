@@ -1,8 +1,4 @@
-const { readFile } = require('fs');
-const { promisify } = require('util');
-const path = require('path');
-
-const readFileAsync = promisify(readFile);
+const vendorService = require('../services/vendorService');
 
 function listVendors(req, res)
 {
@@ -11,19 +7,7 @@ function listVendors(req, res)
 
 async function listVendorsAsync(req, res)
 {
-    let vendors = JSON.parse(
-        (
-            await readFileAsync(
-                path.resolve(
-                    __dirname, 
-                    '../', 
-                    'vendors.json'
-                )
-            )
-        ).toString()
-    );
-    
-    res.json(vendors);
+    res.json(await vendorService.getVendors());
 }
 
 module.exports = {

@@ -3,7 +3,7 @@ function genericPayment(req, res) {
 }
 
 function genericPaymentAsync(req, res) {
-
+    
 }
 
 function vignettePurchase(req, res) {
