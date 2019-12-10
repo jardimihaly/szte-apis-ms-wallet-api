@@ -25,6 +25,6 @@
 | Rate limit használata (klienstől függő - Kong consumer) | 4 | X |
 | Dinamikus terhelés (load balancing) | 4 | Upstream: 1. curl parancs<br>Targetek: 2. és 3. curl parancs |
 | **Docker Compose** | |
-| Működő Docker-compose deployment Kong-gal és OpenAPI-val (verzio min 3) | 5 | docker-compose.yml fájl |
+| ***Működő Docker-compose deployment Kong-gal és OpenAPI-val (verzio min 3)*** | 5 | docker-compose.yml fájl |
 | Verziózott Docker image-ek használata | 3 | X |
 | Health check definiálása az API-hoz | 2 | docker-compose.yml fájl |
