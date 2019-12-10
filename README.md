@@ -28,3 +28,7 @@
 | ***Működő Docker-compose deployment Kong-gal és OpenAPI-val (verzio min 3)*** | 5 | docker-compose.yml fájl |
 | Verziózott Docker image-ek használata | 3 | X |
 | Health check definiálása az API-hoz | 2 | docker-compose.yml fájl |
+
+API Postmannel tesztelve. <br>
+Kong config a kong.sh fájlban található.<br>
+Tesztadatok a testdata.txt fájlban találhatóak.<br>
